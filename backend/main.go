@@ -1,19 +1,28 @@
 package main
 
 import (
-	"github.com/yourusername/TOHYOKOUHO/database"
+	"fmt"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/yourusername/TOHYOKOUHO/database"
+	"github.com/yourusername/TOHYOKOUHO/models"
+	"github.com/yourusername/TOHYOKOUHO/routes"
 )
 
 func main() {
 	database.Connect()
 
+	// 候補者テーブル作成
+	if err := models.CreateCandidatesTable(database.DB); err != nil {
+		panic(err)
+	}
+
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"message": "Hello, TOHYOKOUHO!"})
-	})
+	// APIルーティングの設定
+	routes.SetupRoutes(app)
 
-	app.Listen(":3001")
+	fmt.Println("🚀 Server is running on http://localhost:3001") // ✅ ログ追加
+	log.Fatal(app.Listen(":3001"))                              // ✅ `log.Fatal` に変更し、サーバー起動エラーをキャッチ
 }
