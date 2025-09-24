@@ -1,7 +1,7 @@
 // src/types/candidate.ts
 
 export type Candidate = {
-    id: number;
+    id: string;
     name: string;
     party: string;
     age: number;

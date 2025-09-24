@@ -1,6 +1,6 @@
 // src/app/candidates/[id]/page.tsx
 
-import { DUMMY_CANDIDATES } from "@/lib/dummy-data";
+import { getCandidateById } from "@/lib/candidate-service"; // 作成した関数をインポート
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,9 +11,9 @@ type Props = {
   };
 };
 
-export default function CandidateDetailPage({ params }: Props) {
-  const candidateId = parseInt(params.id, 10);
-  const candidate = DUMMY_CANDIDATES.find((c) => c.id === candidateId);
+export default async function CandidateDetailPage({ params }: Props) {
+  // URLのIDを使ってFirebaseから特定の候補者データを取得
+  const candidate = await getCandidateById(params.id);
 
   // もし該当するIDの候補者が見つからなければ404ページを表示
   if (!candidate) {
