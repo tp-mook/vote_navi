@@ -4,6 +4,7 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
+    // containerクラスなどをmain要素からdiv要素に移動
     <div className="container mx-auto px-4 py-12 text-center">
       <h2 className="text-4xl font-extrabold text-gray-900 mb-4">
         あなたの一票を、もっと確かなものに。
