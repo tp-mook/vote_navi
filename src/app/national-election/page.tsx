@@ -2,10 +2,25 @@
 
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CandidateCard from "@/components/CandidateCard";
-import { getAllCandidates } from "@/lib/candidate-service";
+import { Candidate } from "@/types/candidate"; // Candidateの型を直接インポート
+
+// APIから候補者データを取得する新しい関数
+async function fetchCandidatesFromAPI(): Promise<Candidate[]> {
+  // process.env.NEXT_PUBLIC_VERCEL_URLはデプロイ時に自動で設定されるURL
+  const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000';
+  const response = await fetch(`${baseUrl}/api/candidates`, {
+    cache: 'no-store', // 常に最新のデータを取得するためキャッシュを無効化
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch candidates');
+  }
+  return response.json();
+}
 
 export default async function NationalElectionPage() {
-  const candidates = await getAllCandidates();
+  // 新しい関数を使ってAPIからデータを取得
+  const candidates = await fetchCandidatesFromAPI();
 
   return (
     <div className="container mx-auto px-4 py-8">
