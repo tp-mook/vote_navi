@@ -1,27 +1,18 @@
 // src/app/api/candidates/[id]/route.ts
 
 import { NextResponse } from 'next/server';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'; // updateDoc, deleteDocを追加
 import { db } from '@/lib/firebase';
 import { Candidate } from '@/types/candidate';
 
-type Params = {
-  id: string;
-};
+type Params = { id: string };
 
-// GETリクエスト（データ取得）に対する処理
-// context.params.idでURLの動的な部分（[id]）を取得できる
+// GETリクエスト (変更なし、pledgesとscandalsを追加)
 export async function GET(request: Request, context: { params: Params }) {
   try {
     const { id } = context.params;
-    const docRef = doc(db, 'candidates', id);
-    const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) {
-      // 候補者が見つからない場合は404エラーを返す
-      return new NextResponse('Candidate not found', { status: 404 });
-    }
-
+    const docSnap = await getDoc(doc(db, 'candidates', id));
+    if (!docSnap.exists()) return new NextResponse('Not Found', { status: 404 });
     const data = docSnap.data();
     const candidate: Candidate = {
       id: docSnap.id,
@@ -31,12 +22,39 @@ export async function GET(request: Request, context: { params: Params }) {
       electoralDistrict: data.electoralDistrict || '',
       catchphrase: data.catchphrase || '',
       imageUrl: data.imageUrl || '',
+      pledges: data.pledges || [],
+      scandals: data.scandals || [],
     };
-
     return NextResponse.json(candidate);
-
   } catch (error) {
-    console.error(`Error fetching candidate with id:`, error);
+    return new NextResponse('Internal Server Error', { status: 500 });
+  }
+}
+
+// ▼▼▼ PUTリクエスト（更新）の処理を追加 ▼▼▼
+export async function PUT(request: Request, context: { params: Params }) {
+  try {
+    const { id } = context.params;
+    const updatedData = await request.json();
+    const docRef = doc(db, 'candidates', id);
+    await updateDoc(docRef, {
+      ...updatedData,
+      age: Number(updatedData.age),
+    });
+    return NextResponse.json({ message: 'Candidate updated successfully' });
+  } catch (error) {
+    return new NextResponse('Internal Server Error', { status: 500 });
+  }
+}
+
+// ▼▼▼ DELETEリクエスト（削除）の処理を追加 ▼▼▼
+export async function DELETE(request: Request, context: { params: Params }) {
+  try {
+    const { id } = context.params;
+    const docRef = doc(db, 'candidates', id);
+    await deleteDoc(docRef);
+    return NextResponse.json({ message: 'Candidate deleted successfully' });
+  } catch (error) {
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

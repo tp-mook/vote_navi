@@ -1,7 +1,8 @@
 // src/lib/firebase.ts
 
-import { initializeApp } from "firebase/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth"; // getAuthをインポート
 
 const firebaseConfig = {
     apiKey: "AIzaSyDrhi3e40Xjg3rkuNu0TZzRR1O7IrQWaaE",
@@ -12,10 +13,11 @@ const firebaseConfig = {
     appId: "1:36582474189:web:6319f51b1a3ec7fd570484"
   };
 
-// Firebaseアプリを初期化
-const app = initializeApp(firebaseConfig);
+// Next.jsのサーバーサイドとクライアントサイドでの重複初期化を防ぐ
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Firestoreのインスタンスを取得
 const db = getFirestore(app);
+const auth = getAuth(app); // 初期化済みのappを使ってauthを取得
 
-export { db };
+// dbとauthをエクスポートする
+export { db, auth };

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Candidate } from "@/types/candidate";
-import Link from "next/link"; // Linkをインポート
+import Link from "next/link";
 
 type Props = {
   candidate: Candidate;
@@ -10,7 +10,6 @@ type Props = {
 
 export default function CandidateCard({ candidate }: Props) {
   return (
-    // Linkコンポーネントでカード全体を囲む
     <Link href={`/candidates/${candidate.id}`} className="block">
       <div className="bg-white rounded-lg shadow-md overflow-hidden h-full transform hover:-translate-y-1 transition-transform duration-300">
         <div className="p-6">
@@ -28,7 +27,8 @@ export default function CandidateCard({ candidate }: Props) {
                   {candidate.party}
                 </span>
               </div>
-              <h3 className="text-2xl font-bold mt-1">{candidate.name}</h3>
+              {/* ▼▼▼ 変更点 ▼▼▼ */}
+              <h3 className="text-2xl font-bold mt-1 text-gray-900">{candidate.name}</h3>
               <p className="text-sm text-gray-600">{candidate.electoralDistrict} / {candidate.age}歳</p>
             </div>
           </div>

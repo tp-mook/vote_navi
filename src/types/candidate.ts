@@ -1,6 +1,13 @@
 // src/types/candidate.ts
 
-export type Candidate = {
+export type Scandal = {
+    date: string;
+    title: string;
+    source: string;
+    description: string;
+  };
+  
+  export type Candidate = {
     id: string;
     name: string;
     party: string;
@@ -8,4 +15,6 @@ export type Candidate = {
     electoralDistrict: string;
     catchphrase: string;
     imageUrl: string;
+    scandals?: Scandal[];
+    pledges?: string[]; // ▼▼▼ この行を追加 ▼▼▼
   };

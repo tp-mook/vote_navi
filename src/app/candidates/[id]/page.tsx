@@ -1,7 +1,7 @@
 // src/app/candidates/[id]/page.tsx
 
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { Candidate } from "@/types/candidate"; // 型をインポート
+import { Candidate } from "@/types/candidate";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
@@ -11,15 +11,14 @@ type Props = {
   };
 };
 
-// 新しくAPIから特定の候補者データを取得する関数
 async function fetchCandidateFromAPI(id: string): Promise<Candidate | null> {
   const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000';
   const response = await fetch(`${baseUrl}/api/candidates/${id}`, {
-    cache: 'no-store', // 常に最新のデータを取得
+    cache: 'no-store',
   });
 
   if (response.status === 404) {
-    return null; // 候補者が見つからなかった場合
+    return null;
   }
 
   if (!response.ok) {
@@ -30,10 +29,8 @@ async function fetchCandidateFromAPI(id: string): Promise<Candidate | null> {
 }
 
 export default async function CandidateDetailPage({ params }: Props) {
-  // 新しい関数を使ってAPIからデータを取得
   const candidate = await fetchCandidateFromAPI(params.id);
 
-  // もし該当するIDの候補者が見つからなければ404ページを表示
   if (!candidate) {
     notFound();
   }
@@ -58,7 +55,7 @@ export default async function CandidateDetailPage({ params }: Props) {
             <span className="inline-block bg-blue-500 text-white text-sm px-3 py-1 rounded-full uppercase font-semibold tracking-wide">
               {candidate.party}
             </span>
-            <h2 className="text-4xl font-bold mt-2">{candidate.name}</h2>
+            <h2 className="text-4xl font-bold mt-2 text-gray-900">{candidate.name}</h2>
             <p className="text-lg text-gray-600 mt-1">{candidate.electoralDistrict} / {candidate.age}歳</p>
             <p className="text-2xl mt-4 text-gray-800">
               「{candidate.catchphrase}」
@@ -66,14 +63,38 @@ export default async function CandidateDetailPage({ params }: Props) {
           </div>
         </div>
         <div className="mt-8 border-t pt-6">
-          <h3 className="text-2xl font-bold mb-4">主な公約</h3>
+          <h3 className="text-2xl font-bold mb-4 text-gray-900">主な公約</h3>
           <ul className="list-disc list-inside space-y-2 text-gray-700">
-            <li>経済成長を促進し、国民の所得を向上させます。</li>
-            <li>子育て支援を拡充し、安心して子供を育てられる社会を実現します。</li>
-            <li>再生可能エネルギーへの転換を進め、環境問題に取り組みます。</li>
-            <li>外交・安全保障を強化し、国民の安全を守ります。</li>
+            {candidate.pledges && candidate.pledges.length > 0 ? (
+              candidate.pledges.map((pledge, index) => (
+                <li key={index}>{pledge}</li>
+              ))
+            ) : (
+              <li>公約は現在準備中です。</li>
+            )}
           </ul>
         </div>
+
+        {/* ▼▼▼ ここから追加 ▼▼▼ */}
+        {/* scandalsデータが存在し、かつ1件以上ある場合のみこのセクションを表示 */}
+        {candidate.scandals && candidate.scandals.length > 0 && (
+          <div className="mt-8 border-t pt-6">
+            <h3 className="text-2xl font-bold mb-4 text-gray-900">過去の不祥事・問題発言</h3>
+            <div className="space-y-4">
+              {candidate.scandals.map((scandal, index) => (
+                <div key={index} className="p-4 border-l-4 border-red-500 bg-red-50">
+                  <p className="font-semibold text-gray-800">{scandal.date}: {scandal.title}</p>
+                  <p className="text-gray-700 mt-1">{scandal.description}</p>
+                  <a href={scandal.source} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline mt-2 inline-block">
+                    情報源を確認
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* ▲▲▲ ここまで ▲▲▲ */}
+
       </div>
     </div>
   );
